@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 3cacedf5165be1e4d981ca51a368426d
+timeCreated: 1538572738
+licenseType: Free
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Leyton Personal
+  fontNames:
+  - Leyton Personal
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
