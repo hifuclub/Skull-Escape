@@ -10,7 +10,7 @@ public class Joystick : MonoBehaviour
     Vector3 targetPos;
     public Transform joy;
     public float speedForReturn = 0.5f;
-    public int maxH, minH, maxW, minW;
+    float maxH, minH, maxW, minW;
     bool isTr;
     public int maxRange;
     public float r, allRange;
@@ -21,13 +21,15 @@ public class Joystick : MonoBehaviour
 
     void Start()
     {
+        maxH = this.transform.position.y * 2;
+        maxW = this.transform.position.x * 2;
         mousePositionOnScreen = new Vector3(0, 0, 0);
     }
     void Update()
     {
-
+        joyPosForReturn = this.transform.position;
         /////////////////////joy
-        Vector3 re = Vector3.Lerp(joy.position, joyPosForReturn, speedForReturn);
+        Vector3 re = Vector3.Lerp(joy.position, this.transform.position, speedForReturn);
         targetPos = re;
 
         ////////////////////
@@ -36,11 +38,11 @@ public class Joystick : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             mousePositionOnScreen = Input.mousePosition;
-            int omaxH = maxH, ominH = minH, omaxW = maxW, ominW = minW;
+            float omaxH = maxH, ominH = minH, omaxW = maxW, ominW = minW;
             if (isTr)
             {
-                omaxH += 300;
-                omaxW += 500;
+                omaxH += 100;
+                omaxW += 200;
                 isTr = false;
 
             }
@@ -85,8 +87,15 @@ public class Joystick : MonoBehaviour
 
                 PlayerMove.h = dx / 230 * 0.5f;
                 PlayerMove.v = dy / 220 * 0.5f;
-                PlayerMove.rChange = dx / 400;
 
+                if (dy > 0)
+                {
+                    PlayerMove.rChange = dx / 400;
+                }
+                else
+                {
+                    PlayerMove.rChange = dx / 400;/////////////////////加负号,倒车旋转反向 
+                }
 
                 if (allRange > 50 && dy > 0)
                 {

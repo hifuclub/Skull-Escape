@@ -20,10 +20,12 @@ public class Knight : MonoBehaviour
     public Quaternion lsShowMe;
     bool isTr;//造成撞击
     int isTrCD;//撞击冷却
+    int isRunCD;//追击冷却
     int hp;
 
     public GameObject deathPar;
 
+    public GameObject call;
     // Use this for initialization
     void Start()
     {
@@ -32,7 +34,7 @@ public class Knight : MonoBehaviour
         player = GameObject.FindGameObjectWithTag(Tags.player).transform;
         fireRange = 70;//初始化攻击距离
         initialPos = this.transform.position;
-        hp = 3;
+        hp = 7;
     }
 
     // Update is called once per frame
@@ -49,7 +51,7 @@ public class Knight : MonoBehaviour
             lstime = 0;
 
         }
-        if (range <= fireRange && kntFSM == 1)
+        if (range <= fireRange && (kntFSM == 1 || kntFSM == 6))
         {
             kntFSM = 2;//瞄准状态(禁止移动)
             anim.SetBool("move", false);
@@ -71,22 +73,26 @@ public class Knight : MonoBehaviour
 
         //////////////////////////////////////////状态机
 
-        if (kntFSM == 1) //移动状态
+        if (kntFSM == 1 || kntFSM == 6) //移动状态
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
             //Debug.Log("wait" + lstime);
             movement = new Vector3(Mathf.Cos(nowRotation.y * 3.14159f / 180) * speed * Time.deltaTime, 0, -Mathf.Sin(nowRotation.y * 3.14159f / 180) * speed * Time.deltaTime);
 
             //回家
-            if (range > 120)
+            if (kntFSM == 1 && range > 120)
             {
                 kntFSM = 5;
 
             }
-            if (lstime++ > 60 * 5)
+            if (kntFSM == 1 && lstime++ > 60 * 5)
             {
                 kntFSM = 5;
 
+            }
+            if (kntFSM == 6 && isRunCD++ > 60 * 7)
+            {
+                kntFSM = 5;
             }
 
         }
@@ -184,11 +190,17 @@ public class Knight : MonoBehaviour
 
     }
 
-
+    void hasDamage()//被打
+    {
+        call.SetActive(true);
+        kntFSM = 6;
+        anim.SetBool("move", true);
+        isRunCD = 0;
+    }
 
     void death()
     {
-        Instantiate(deathPar, this.transform.position,new Quaternion(0,0,0,0));//死亡特效
+        Instantiate(deathPar, this.transform.position, new Quaternion(0, 0, 0, 0));//死亡特效
         Destroy(this.gameObject);
     }
 
@@ -212,6 +224,11 @@ public class Knight : MonoBehaviour
         if (other.tag.Equals("mhmForPlayer"))
         {
             hp -= 1;
+            hasDamage();
+        }
+        if (other.tag.Equals("call") && kntFSM != 2 && kntFSM != 3 && kntFSM != 4 && kntFSM != 6)
+        {
+            hasDamage();
         }
     }
 

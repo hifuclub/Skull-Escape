@@ -17,6 +17,22 @@ public class FireBallPlayer : MonoBehaviour {
     bool isTr;
     public Quaternion nowRotationQuaternion;
 
+    public ParticleSystem particleSystem01;
+    public ParticleSystem particleSystem02;
+    ParticleSystem.MinMaxCurve emission01;
+    ParticleSystem.MinMaxCurve emission02;
+
+    public GameObject last;
+    public GameObject del;
+    bool isDel;
+
+    private void Awake()
+    {
+        
+        emission01 = particleSystem01.emission.rateOverTime;
+        emission02 = particleSystem02.emission.rateOverTime;
+    }
+
     // Use this for initialization
     void Start () {
         moveCount = 0;
@@ -41,11 +57,16 @@ public class FireBallPlayer : MonoBehaviour {
 
         //Debug.Log(posX);
         //Debug.Log(-Mathf.Sin(vRos) * moveCount * speed);
-        if (moveCount > 10 * 60)
+        if (moveCount > 1.2f * 60)
         {
             closeFB();
         }
-
+        //火球变弱
+        //Debug.Log(8 * (1 - moveCount / (1.2f * 60)));
+        float tempF01 = 30 * (1 - moveCount / (1.2f * 60));
+        if (tempF01 < 0) tempF01 = 0;
+        emission01 = tempF01;
+        emission02 = tempF01;
 
 
     }
@@ -53,18 +74,23 @@ public class FireBallPlayer : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag.Equals("mhm01") && (!isTr))
+        if (other.tag.Equals("mhm01") || other.tag.Equals("building") && (!isTr))
         {
+            Debug.Log(other);
+
             isTr = true;
-            Destroy(this.gameObject.GetComponent<BoxCollider>());
+            closeFB();
         }
     }
+
+
 
     void closeFB()
     {
         //Debug.Log("close=====================");
-        Destroy(this.gameObject);
-        
+        //last.transform.SetParent(this.transform);
+        last.SetActive(true);
+        Destroy(del.gameObject);
     }
     //public void initialiseFireBall(Vector3 ls)//初始化
     //{

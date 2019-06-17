@@ -48,7 +48,7 @@ public class MahoumPlayer01 : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag.Equals("mhm01")&&(!isTr))
+        if (other.tag.Equals("mhm01") && (!isTr))
         {
             isTr = true;
             Destroy(this.gameObject.GetComponent<BoxCollider>());

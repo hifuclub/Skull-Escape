@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Mahotukai : MonoBehaviour {
+public class Mahotukai : MonoBehaviour
+{
     private Transform player;
     CharacterController cc;
     public Vector3 nowRotation;
@@ -22,17 +23,19 @@ public class Mahotukai : MonoBehaviour {
     private int lstime2;
     public GameObject fbPool;
     public GameObject fball;
-    public float x,z,r;
+    public float x, z, r;
     private Vector3 initialPos;
     float iniRange;
     int hp;
     public GameObject deathPar;
+    public GameObject call;
 
     public int count01, count02;
     //public GameObject mhtFireObj;
     //public Vector3 mhtFirePos;
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         mht = this.gameObject;
         player = GameObject.FindGameObjectWithTag(Tags.player).transform;
         cc = this.GetComponent<CharacterController>();/////InChildren
@@ -41,19 +44,20 @@ public class Mahotukai : MonoBehaviour {
         anim = this.GetComponent<Animator>();
         fireRange = 80;//魔法师转换到开火状态所需要的和玩家的距离上限默认
         initialPos = this.transform.position;//初始坐标记录
-        hp = 2;
+        hp = 4;
     }
 
     // Update is called once per frame
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
         showls = this.transform.position;
 
         //mhtFirePos = mhtFireObj.transform.position;//取得开火位置
-        range = Vector3.Distance(this.transform.position,player.position);
-        movement = new Vector3(0,0,0);
+        range = Vector3.Distance(this.transform.position, player.position);
+        movement = new Vector3(0, 0, 0);
         Quaternion targetRotation = Quaternion.LookRotation(transform.position - player.position);
-        
-        
+
+
         //状态机判断部分
         if (mhtFSM == 0 && range < 90)
         {
@@ -61,38 +65,40 @@ public class Mahotukai : MonoBehaviour {
             anim.SetBool("move", true);
             lstime2 = 0;
         }
-        if(mhtFSM == 1 && range <= fireRange - 20)
+        if ((mhtFSM == 1 || mhtFSM == 5) && range <= fireRange - 20)
         {
             mhtFSM = 2;//瞄准状态(禁止移动)
             anim.SetBool("move", false);
             lstime = 200;//重新填装
 
         }
-       
-        
+
+
         //状态机
-        if (mhtFSM == 1)//移动状态
+        if (mhtFSM == 1 || mhtFSM == 5)//移动状态
         {
             movement = new Vector3(-Mathf.Sin(nowRotation.y * 3.14159f / 180) * speed * v * Time.deltaTime, 0, -Mathf.Cos(nowRotation.y * 3.14159f / 180) * speed * v * Time.deltaTime);
             nowRotation = mht.transform.rotation.eulerAngles;
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
 
-            if (range > 120)
+            if (mhtFSM == 1 && range > 120)
             {
                 mhtFSM = 4;
-
+                lstime2 = 4;
             }
             if (lstime2++ > 60 * 7)
             {
+                lstime2 = 4;
                 mhtFSM = 4;
 
             }
+
         }
         if (mhtFSM == 2) //瞄准状态(禁止移动)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
             //Debug.Log("wait" + lstime);
-            if (lstime++>60*3)
+            if (lstime++ > 60 * 3)
             {
                 lstime = 0;
                 fire();
@@ -142,7 +148,7 @@ public class Mahotukai : MonoBehaviour {
             transform.rotation = Quaternion.Slerp(transform.rotation, originRotation, speed * Time.deltaTime);
             //Debug.Log("wait" + lstime);
             movement = new Vector3(-Mathf.Sin(iniRotation.y * 3.14159f / 180) * speed * Time.deltaTime, 0, -Mathf.Cos(iniRotation.y * 3.14159f / 180) * speed * Time.deltaTime);
-            
+
             if (iniRange < 10)
             {
                 anim.SetBool("move", false);
@@ -199,18 +205,30 @@ public class Mahotukai : MonoBehaviour {
         {
             //Debug.Log("fire" + count01++);
             Vector3 ls = new Vector3(x, z, r);
-            Instantiate(fball,ls,new Quaternion(0,0,0,0));
+            Instantiate(fball, ls, new Quaternion(0, 0, 0, 0));
             //lsObj.SendMessage("initialiseFireBall", ls);
         }
     }
-
+    void hasDamage()//被打
+    {
+        mhtFSM = 5;
+        anim.SetBool("move", true);
+        lstime2 = 0;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag.Equals("mhmForPlayer"))
         {
+            call.SetActive(true);
             hp -= 1;
+            hasDamage();
         }
+        if (other.tag.Equals("call") && mhtFSM != 2)
+        {
+            hasDamage();
+        }
+
     }
 
 

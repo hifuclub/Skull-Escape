@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class PlayerMove : MonoBehaviour
     public GameObject mahoum;
     //public GameObject mhm01;
     public int mhmCD;
+    public Image mhmCDimg;
     public bool ismhm1;
     private bool isMakeMhm;
 
@@ -35,7 +37,7 @@ public class PlayerMove : MonoBehaviour
     public GameObject deathPar;
     bool isDeathPar = false;
 
-    int iFire;
+    float iFire;
 
     void Awake()
     {
@@ -64,21 +66,23 @@ public class PlayerMove : MonoBehaviour
         }
         if (ismhm1)
         {
-            if (mhmCD++ > 0.3 * 60)
+            mhmCDimg.fillAmount = 1 - iFire / (2 * 60);
+            if (mhmCD++ > 20)
             {
                 //ismhm1 = false;
                 mhmCD = 0;
                 isMakeMhm = true;
             }
-            if (isMakeMhm && iFire++ > 30)//开火
+            if (isMakeMhm && iFire++ > 2 * 60)//开火
             {
+                
                 iFire = 0;
                 fire();
             }
         }
         if (!ismhm1)
         {
-
+            mhmCDimg.fillAmount = 0;
 
             #region 转身机制
             if (v != 0)
@@ -211,5 +215,7 @@ public class PlayerMove : MonoBehaviour
     {
         ismhm1 = false;
         isMakeMhm = false;
+        mhmCD = 0;
+        iFire = 0;
     }
 }
